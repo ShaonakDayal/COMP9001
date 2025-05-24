@@ -1,3 +1,17 @@
+"""
+This project is an adaptation of the old Oregon Trail Game. This is a text based survival and strategy game.
+Here, the player will be presented with randomised scenarios and they must choose how to manage their resources to survive the 850km journey
+through the Australian Outback.
+
+The game will run directly after you run the command: "python3 project.py" in the terminal.
+Taking your player name, the game will save your progress and game stats in a unique .txt file.
+You can load your previous game from the same .txt file as well, if you return to the game at a later stage.
+
+After entering their name, the player must manage their knapsack and allocate the resources they want to carry.
+Then the player's journey starts and they must choose their actions based on the random events they might encounter.
+
+"""
+
 import random, os, sys
 from typing import Dict, List, Tuple
 
@@ -19,7 +33,7 @@ class Player:
         self.cause_of_death = ""
 
     # ---------------------------------- player status ----------------------------------
-    def is_alive(self) -> bool:
+    def is_alive(self):
         return self.health > 0
 
     def status_report(self):
@@ -107,6 +121,8 @@ HELP_TEXT = (
 )
 
 
+# Handling all the events now
+
 def choose_event():
     r = random.random()
     cum = 0.0
@@ -139,7 +155,7 @@ def handle_event(player: "Player", event: Dict):
 
 
 
-
+# Caravan Breakdown
 def breakdown(player: "Player"):
     needed = random.randint(1, 3)
     print(f"You need {needed} spare part(s) to repair the caravan.")
@@ -150,6 +166,7 @@ def breakdown(player: "Player"):
         print("Not enough spare parts: you are stranded and perish.")
         player.die("caravan breakdown")
 
+# Handling the randomised trade
 def trade(player: "Player"):
     resources = ["food", "water", "spare", "opal"]
     give, receive = random.sample(resources, 2)
@@ -171,6 +188,7 @@ def trade(player: "Player"):
     player.check_starve_thirst()
 
 
+# Found resources in the middle of the journey
 def found_resources(player: "Player"):
     options = [
         ("an opal mine", "opal", random.randint(10, 30)),
@@ -194,7 +212,7 @@ def found_resources(player: "Player"):
 
 
 
-
+# Sorting the knapsack at the start of the game
 def plan_knapsack():
     print(f"You have a knapsack that can carry {KNAPSACK_CAPACITY} total units of supplies.")
     print("Resources available: Food, Water, Spare parts, opal gems.\n")
@@ -216,12 +234,14 @@ def plan_knapsack():
         return food, water, spare, opal
 
 
+# Save Player File function
 def save_game(p: "Player", fn: str):
     with open(fn, "w") as fp:
         fp.write(f"{p.health},{p.food},{p.water},{p.spare},{p.opal},{p.distance_left},{p.day}\n")
     print("[Game saved]")
 
 
+# Load Player File function
 def load_game(fn: str):
     with open(fn) as fp:
         h, f, w, s, m, d, day = map(int, fp.readline().strip().split(","))
@@ -236,7 +256,6 @@ def load_game(fn: str):
 
 
 
-# -------------------------------- main game loop ----------------------------------
 
 def prompt_username():
     while True:
@@ -245,6 +264,7 @@ def prompt_username():
             return u
         print("Name must be non-empty and alphanumeric (no spaces). Try again.")
 
+# -------------------------------- main game loop ----------------------------------
 
 def main():
     print("================= Aussie Trail =================")
@@ -254,7 +274,7 @@ def main():
     if os.path.exists(save_file):
         player = load_game(save_file)
     else:
-        print(f"New adventurer detected – welcome, {username}!")
+        print(f"New adventurer detected : welcome, {username}!")
         food, water, spare, opal = plan_knapsack()
         player = Player(food, water, spare, opal)
         save_game(player, save_file)
